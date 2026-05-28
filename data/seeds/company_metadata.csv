@@ -1,0 +1,26 @@
+ticker,company_name,sector,industry,market_cap,country,exchange
+NVDA,NVIDIA Corporation,Technology,Semiconductors,5366057795584,United States,NMS
+AAPL,Apple Inc.,Technology,Consumer Electronics,4329832448000,United States,NMS
+MSFT,Microsoft Corporation,Technology,Software - Infrastructure,3029092794368,United States,NMS
+GOOG,Alphabet Inc.,Communication Services,Internet Content & Information,4650149871616,United States,NMS
+AMZN,"Amazon.com, Inc.",Consumer Cyclical,Internet Retail,2859454955520,United States,NMS
+META,"Meta Platforms, Inc.",Communication Services,Internet Content & Information,1530669301760,United States,NMS
+TSLA,"Tesla, Inc.",Consumer Cyclical,Auto Manufacturers,1627918565376,United States,NMS
+JPM,JPMorgan Chase & Co.,Financial Services,Banks - Diversified,816929439744,United States,NYQ
+GS,"The Goldman Sachs Group, Inc.",Financial Services,Capital Markets,279047536640,United States,NYQ
+MS,Morgan Stanley,Financial Services,Capital Markets,302649442304,United States,NYQ
+BAC,Bank of America Corporation,Financial Services,Banks - Diversified,360364867584,United States,NYQ
+BRK-B,Berkshire Hathaway Inc.,Financial Services,Insurance - Diversified,1045987786752,United States,NYQ
+AXP,American Express Company,Financial Services,Credit Services,214462021632,United States,NYQ
+UNH,UnitedHealth Group Incorporated,Healthcare,Healthcare Plans,359979352064,United States,NYQ
+ALL,The Allstate Corporation,Financial Services,Insurance - Property & Casualty,55466487808,United States,NYQ
+PGR,The Progressive Corporation,Financial Services,Insurance - Property & Casualty,115944038400,United States,NYQ
+TRV,"The Travelers Companies, Inc.",Financial Services,Insurance - Property & Casualty,63423406080,United States,NYQ
+SNOW,Snowflake Inc.,Technology,Software - Application,52539486208,United States,NYQ
+CRM,"Salesforce, Inc.",Technology,Software - Application,140140789760,United States,NYQ
+UBER,"Uber Technologies, Inc.",Technology,Software - Application,155438333952,United States,NYQ
+NFLX,"Netflix, Inc.",Communication Services,Entertainment,369118609408,United States,NMS
+V,Visa Inc.,Financial Services,Credit Services,620767215616,United States,NYQ
+MA,Mastercard Incorporated,Financial Services,Credit Services,441624068096,United States,NYQ
+PYPL,"PayPal Holdings, Inc.",Financial Services,Credit Services,40082870272,United States,NMS
+XYZ,"Block, Inc.",Technology,Software - Infrastructure,42924453888,United States,NYQ
