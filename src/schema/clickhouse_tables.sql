@@ -89,3 +89,61 @@ CREATE TABLE IF NOT EXISTS stock_analytics.company_metadata
 )
 ENGINE = MergeTree()
 ORDER BY ticker;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 4. KAFKA ENGINE TABLE — Virtual Kafka consumer
+-- ────────────────────────────────────────────────────────────
+-- NOT a storage table. ClickHouse polls Kafka in the background.
+-- Column names MUST match JSON keys from the producer exactly.
+-- Week 3 producer (trade_simulator.py) sends "timestamp", not "trade_time".
+-- Rename happens in mv_kafka_to_trades below.
+--
+-- IMPORTANT: kafka_broker_list = 'redpanda:29092' (Docker internal DNS)
+-- NOT 'localhost:9092'. ClickHouse runs inside Docker.
+
+CREATE TABLE IF NOT EXISTS stock_analytics.kafka_trades
+(
+    trade_id   String,
+    ticker     String,
+    price      Float64,
+    quantity   Int32,
+    timestamp  String,       -- JSON key from producer (ISO 8601 string)
+    side       String,
+    trade_type String,
+    bid_price  Float64,
+    ask_price  Float64,
+    exchange   String,       -- In JSON but dropped in MV (not in raw_trades)
+    source     String
+)
+ENGINE = Kafka
+SETTINGS
+    kafka_broker_list = 'redpanda:29092',
+    kafka_topic_list = 'stock_trades',
+    kafka_group_name = 'clickhouse_consumer',
+    kafka_format = 'JSONEachRow',
+    kafka_num_consumers = 1;
+
+
+-- ────────────────────────────────────────────────────────────
+-- 5. MATERIALIZED VIEW — Kafka → raw_trades bridge
+-- ────────────────────────────────────────────────────────────
+-- On each Kafka poll batch: transform JSON-shaped rows → MergeTree storage.
+-- parseDateTimeBestEffort: ISO string → DateTime64
+-- exchange dropped: not in raw_trades schema
+
+CREATE MATERIALIZED VIEW IF NOT EXISTS stock_analytics.mv_kafka_to_trades
+TO stock_analytics.raw_trades
+AS SELECT
+    trade_id,
+    ticker,
+    price,
+    quantity,
+    parseDateTimeBestEffort(timestamp) AS trade_time,
+    side,
+    trade_type,
+    bid_price,
+    ask_price,
+    source,
+    now() AS _loaded_at
+FROM stock_analytics.kafka_trades;
