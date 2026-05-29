@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
-"""Quick ClickHouse smoke test — run after `docker compose up -d`."""
+"""
+01 — ClickHouse connection smoke test.
+
+Run after: docker compose up -d
+
+Usage:
+    python3 scripts/01_verify_connection.py
+"""
 
 import sys
 from pathlib import Path
 
-# Allow `from src...` when run as: python scripts/verify_clickhouse.py
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 
