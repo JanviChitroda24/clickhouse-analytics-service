@@ -2,7 +2,7 @@
 Create skip indexes on raw_trades and materialize them on existing data.
 
 Skip indexes only apply to parts inserted AFTER ADD INDEX unless you
-MATERIALIZE — same backfill idea as Hour 6 MVs.
+MATERIALIZE — same backfill idea as MVs.
 
 Usage:
     python -m src.setup_skip_indexes

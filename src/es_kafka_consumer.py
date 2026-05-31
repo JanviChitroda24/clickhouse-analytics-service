@@ -1,10 +1,10 @@
 """
-Kafka consumer that indexes trades into ElasticSearch in real-time (Hour 12).
+Kafka consumer that indexes trades into ElasticSearch in real-time.
 
 Runs alongside ClickHouse's native Kafka engine — both read stock_trades topic.
 Different consumer groups mean each engine gets every message independently:
 
-  clickhouse_consumer  -> ClickHouse Kafka engine (Hour 4)
+  clickhouse_consumer  -> ClickHouse Kafka engine 
   es_consumer          -> this script -> ES bulk index
 
 Batching: flush at 100 documents OR 5 seconds (whichever comes first).

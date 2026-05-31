@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-11 — ElasticSearch connection + index mapping verification (Hour 11).
+ElasticSearch connection + index mapping verification.
 
 Usage:
     python3 scripts/11_verify_es_setup.py

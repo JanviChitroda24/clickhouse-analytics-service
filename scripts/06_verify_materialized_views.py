@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-06 — Verify materialized views exist and have rows after backfill.
+Verify materialized views exist and have rows after backfill.
 
 Run after: python -m src.setup_materialized_views
 
@@ -33,7 +33,7 @@ def main() -> int:
         """)
         found = {name for name, _ in rows}
 
-        print("--- Hour 6 objects ---")
+        print("--- objects ---")
         missing = EXPECTED - found
         for name in sorted(EXPECTED):
             if name not in found:

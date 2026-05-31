@@ -1,5 +1,5 @@
 """
-Head-to-head benchmark: ClickHouse vs ElasticSearch (Hour 15).
+Head-to-head benchmark: ClickHouse vs ElasticSearch.
 
 Runs 8 query categories across both engines (or marks N/A where only one can run),
 records timing, declares winners, and writes docs/engine_comparison_report.md.
@@ -13,7 +13,7 @@ Categories:
 Usage:
     python -m src.engine_comparison
 
-Prerequisites: ClickHouse raw_trades populated, ES stock-trades index (Hour 12).
+Prerequisites: ClickHouse raw_trades populated, ES stock-trades index.
 """
 
 from __future__ import annotations
@@ -105,7 +105,7 @@ def time_es_suggest(body: dict, runs: int = BENCHMARK_RUNS) -> tuple[float, int]
 
 # ── Comparison definitions ────────────────────────────────────────
 # Each entry: CH SQL (or None), ES body, expected winner, architectural why.
-# Hour 13 tested analytics only (biased toward CH). Hour 15 adds search categories.
+# tested analytics only (biased toward CH). adds search categories.
 
 COMPARISONS: list[dict[str, Any]] = [
     {
@@ -433,7 +433,7 @@ def generate_report(results: list[dict[str, Any]]) -> str:
 
 def main() -> None:
     logger.info("=" * 60)
-    logger.info("Engine Comparison: ClickHouse vs ElasticSearch (Hour 15)")
+    logger.info("Engine Comparison: ClickHouse vs ElasticSearch ")
     logger.info("=" * 60)
 
     results = run_comparison()

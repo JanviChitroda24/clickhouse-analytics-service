@@ -1,5 +1,5 @@
 -- ============================================================
--- Skip Indexes — Granule-Level Data Skipping (Hour 7)
+-- Skip Indexes — Granule-Level Data Skipping 
 -- ============================================================
 -- ClickHouse reads in granules (8192 rows). Skip indexes store per-granule
 -- metadata so the engine can skip blocks that cannot match the WHERE clause.

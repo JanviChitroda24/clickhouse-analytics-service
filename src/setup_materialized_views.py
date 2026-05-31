@@ -2,7 +2,7 @@
 Create materialized views and backfill from existing raw_trades data.
 
 ClickHouse MVs only process INSERTs that arrive AFTER the MV is created.
-Historical bulk-load + Hour 4/5 rows are backfilled with INSERT INTO ... SELECT.
+Historical bulk-load + Kafka pipeline rows are backfilled with INSERT INTO ... SELECT.
 
 Usage:
     python -m src.setup_materialized_views

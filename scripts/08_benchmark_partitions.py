@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-08 — Run partition pruning + ORDER BY benchmark (Hour 8).
+Run partition pruning + ORDER BY benchmark.
 
 Usage:
     python3 scripts/08_benchmark_partitions.py

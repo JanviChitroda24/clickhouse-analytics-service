@@ -1,5 +1,5 @@
 """
-Shared ES document building for Hour 12.
+Shared ES document building for the FastAPI layer.
 
 ClickHouse stores trades and metadata in separate tables (JOIN at query time).
 ES documents must be self-contained — sector, company_name, ticker_text, and
@@ -71,7 +71,7 @@ def build_es_doc(trade: dict[str, Any], metadata: dict[str, dict[str, str]]) -> 
             "source": trade.get("source", "unknown"),
             "sector": meta["sector"],
             "company_name": company_name,
-            # Hour 14 autocomplete — match by ticker, company name, or both
+            # autocomplete — match by ticker, company name, or both
             "suggest": {
                 "input": [
                     ticker,

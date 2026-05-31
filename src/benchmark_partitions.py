@@ -1,7 +1,7 @@
 """
-Benchmark partition pruning and ORDER BY / primary index impact (Hour 8).
+Benchmark partition pruning and ORDER BY / primary index impact.
 
-No new schema — proves Hour 2 design choices:
+No new schema — proves design choices:
   PARTITION BY toYYYYMM(trade_time)
   ORDER BY (ticker, trade_time, trade_id)
 
@@ -9,12 +9,12 @@ Layer 3: time-filter queries skip monthly partitions.
 Layer 4: filters on ORDER BY columns use sparse primary index.
 
 Also runs EXPLAIN indexes = 1 to show the full optimization cascade
-(partition → primary key → skip indexes from Hour 7).
+(partition → primary key → skip indexes from index setup).
 
 Usage:
     python -m src.benchmark_partitions
 
-Prerequisites: Hours 2, 7 (schema + skip indexes materialized).
+Prerequisites: (schema + skip indexes materialized).
 """
 
 import logging
@@ -183,7 +183,7 @@ def benchmark_orderby_impact() -> None:
     )
 
     logger.info("  ORDER BY columns use primary index -> fewer rows read.")
-    logger.info("  Non-ORDER BY columns: full scan unless Hour 7 skip index applies.")
+    logger.info("  Non-ORDER BY columns: full scan unless skip index applies.")
 
 
 def show_explain_queries() -> None:
@@ -234,19 +234,19 @@ def generate_summary() -> None:
     logger.info("=" * 60)
     logger.info(
         """
-  Layer 1 — Materialized Views (Hour 6)
+  Layer 1 — Materialized Views 
     Pre-computed aggregations. MV reads ~2.5K rows vs ~85K raw.
     Speedup: ~4-6x at current scale (10-15x at production volume).
 
-  Layer 2 — Skip Indexes (Hour 7)
+  Layer 2 — Skip Indexes 
     Per-granule metadata for non-ORDER BY columns.
     bloom_filter on trade_type: ~85%% fewer rows read.
 
-  Layer 3 — Partition Pruning (Hour 2 schema, Hour 8 benchmark)
+  Layer 3 — Partition Pruning (schema, benchmark)
     PARTITION BY toYYYYMM(trade_time). Time filters skip whole months.
     One year of data: ~11/12 partitions skipped for "last month" queries.
 
-  Layer 4 — ORDER BY / Primary Index (Hour 2 schema, Hour 8 benchmark)
+  Layer 4 — ORDER BY / Primary Index (schema, benchmark)
     ORDER BY (ticker, trade_time, trade_id). ticker-first filters skip granules.
     WHERE ticker = 'AAPL' reads ~12K rows vs ~85K for source = 'simulator'.
 
@@ -260,7 +260,7 @@ def generate_summary() -> None:
 
 def main() -> None:
     logger.info("=" * 60)
-    logger.info("Partition Pruning + Query Planning Benchmark (Hour 8)")
+    logger.info("Partition Pruning + Query Planning Benchmark ")
     logger.info("=" * 60)
 
     show_partitions()

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-02 — ClickHouse schema verification.
+ClickHouse schema verification.
 
 Run after: python -m src.setup_clickhouse
 

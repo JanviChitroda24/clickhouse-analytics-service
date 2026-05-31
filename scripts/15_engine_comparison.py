@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-15 — Head-to-head engine comparison (Hour 15).
+Head-to-head engine comparison.
 
 Usage:
     python3 scripts/15_engine_comparison.py

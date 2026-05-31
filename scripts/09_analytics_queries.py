@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-09 — Run 8 production analytics queries with timing (Hour 9).
+Run 8 production analytics queries with timing.
 
 Usage:
     python3 scripts/09_analytics_queries.py

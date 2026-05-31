@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-01 — ClickHouse connection smoke test.
+ClickHouse connection smoke test.
 
 Run after: docker compose up -d
 

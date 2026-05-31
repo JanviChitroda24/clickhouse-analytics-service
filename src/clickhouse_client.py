@@ -34,3 +34,11 @@ def insert_dataframe(table, df):
 
 def execute_command(command):
     get_ch_client().command(command)
+
+
+def close_client() -> None:
+    """Close the cached ClickHouse connection (called on FastAPI shutdown)."""
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None

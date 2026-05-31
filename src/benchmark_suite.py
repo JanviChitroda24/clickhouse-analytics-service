@@ -1,16 +1,16 @@
 """
-Comprehensive benchmark suite (Hour 10).
+Comprehensive benchmark suite.
 
 Re-runs all Day 2 benchmarks in one pass and writes docs/query_optimization_report.md:
-  - Section 1: Materialized views vs raw (Hour 6)
-  - Section 2: Skip index row reduction (Hour 7)
-  - Section 3: ORDER BY / primary index impact (Hour 8)
-  - Section 4: Production analytics query timings (Hour 9)
+  - Section 1: Materialized views vs raw 
+  - Section 2: Skip index row reduction 
+  - Section 3: ORDER BY / primary index impact 
+  - Section 4: Production analytics query timings 
 
 Usage:
     python -m src.benchmark_suite
 
-Prerequisites: Hours 2–9 (schema, data, MVs, skip indexes materialized).
+Prerequisites: (schema, data, MVs, skip indexes materialized).
 """
 
 import logging
@@ -73,7 +73,7 @@ def get_rows_read(query: str) -> tuple[float, int, list | None]:
     return elapsed_ms, rows_read, result
 
 
-# ── Section 1: Materialized Views (Hour 6) ───────────────────────
+# ── Section 1: Materialized Views  ───────────────────────
 
 def benchmark_mvs() -> list[tuple[str, float, float]]:
     """Compare MV queries vs equivalent raw_trades aggregations."""
@@ -163,7 +163,7 @@ def benchmark_mvs() -> list[tuple[str, float, float]]:
     return results
 
 
-# ── Section 2: Skip Indexes (Hour 7) ─────────────────────────────
+# ── Section 2: Skip Indexes  ─────────────────────────────
 
 def benchmark_skip_indexes() -> tuple[list[tuple[str, str, int, int]], int]:
     """Measure row reduction from skip indexes vs control full scan."""
@@ -212,7 +212,7 @@ def benchmark_skip_indexes() -> tuple[list[tuple[str, str, int, int]], int]:
     return results, control_rows
 
 
-# ── Section 3: ORDER BY / Primary Index (Hour 8) ─────────────────
+# ── Section 3: ORDER BY / Primary Index  ─────────────────
 
 def benchmark_partitions_orderby() -> list[tuple[str, str, int]]:
     """
@@ -245,10 +245,10 @@ def benchmark_partitions_orderby() -> list[tuple[str, str, int]]:
     return results
 
 
-# ── Section 4: Production Analytics (Hour 9) ─────────────────────
+# ── Section 4: Production Analytics  ─────────────────────
 
 def benchmark_analytics() -> list[tuple[str, float, int, str]]:
-    """Time all 8 production analytics queries from Hour 9."""
+    """Time all 8 production analytics queries from index setup."""
     logger.info("Section 4: Production Analytics Queries...")
 
     queries: dict[str, str] = {
@@ -476,7 +476,7 @@ def generate_report(
 
 def main() -> None:
     logger.info("=" * 60)
-    logger.info("Comprehensive Benchmark Suite (Hour 10)")
+    logger.info("Comprehensive Benchmark Suite ")
     logger.info("=" * 60)
 
     total = execute_query("SELECT count() FROM stock_analytics.raw_trades")[0][0]

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-13 — Run ES analytics queries and head-to-head CH comparison (Hour 13).
+Run ES analytics queries and head-to-head CH comparison.
 
 Usage:
     python3 scripts/13_es_analytics_queries.py

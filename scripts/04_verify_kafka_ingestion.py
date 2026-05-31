@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-04 — Verify Kafka engine objects exist and consumer is active.
+Verify Kafka engine objects exist and consumer is active.
 
 Run after: python -m src.setup_clickhouse (with Kafka SQL)
          python -m src.test_kafka_ingestion (optional)

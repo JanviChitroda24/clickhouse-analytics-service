@@ -1,5 +1,5 @@
 """
-End-to-end pipeline verification (Hour 5).
+End-to-end pipeline verification.
 
 Validates the full Producer → Kafka → ClickHouse path under realistic conditions:
   - Row counts across all stock_analytics tables
@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 REPO_ROOT = Path(__file__).resolve().parent.parent
 REPORT_PATH = REPO_ROOT / "docs" / "clickhouse_verification_report.md"
 
-# Tables created in Hours 2–4
+# Core schema tables
 TABLES = ("raw_trades", "vwap_1min", "company_metadata")
 
 # Freshness threshold — producer may be stopped; 5 min is generous for a 2-min run
@@ -170,7 +170,7 @@ def check_kafka_consumer() -> None:
 def check_source_distribution() -> list[tuple]:
     """
     Break down raw_trades by source column.
-    Expect mix of: simulator (Week 3 producer), kafka_test (Hour 4), bulk/Delta origins.
+    Expect mix of: simulator (Week 3 producer), kafka_test , bulk/Delta origins.
     """
     result = execute_query("""
         SELECT source, count() AS cnt

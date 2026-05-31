@@ -82,7 +82,7 @@ def main():
     run_sql_file(schema_file)
 
     verify_tables()
-    logger.info("\nSchema setup complete — ready for Hour 3 (bulk load)!")
+    logger.info("\nSchema setup complete — ready for (bulk load)!")
 
 
 if __name__ == "__main__":

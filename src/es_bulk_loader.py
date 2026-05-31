@@ -1,5 +1,5 @@
 """
-Bulk load trades from ClickHouse into ElasticSearch (Hour 12).
+Bulk load trades from ClickHouse into ElasticSearch.
 
 Reads typed, cleaned data from raw_trades (same 85K rows as ClickHouse).
 Denormalizes each document with sector, company_name, ticker_text, and suggest
@@ -8,7 +8,7 @@ before bulk indexing — ES has no efficient JOINs.
 Usage:
     python -m src.es_bulk_loader
 
-Prerequisites: Hour 11 index created, ClickHouse bulk-loaded (Hour 3).
+Prerequisites: index created, ClickHouse bulk-loaded.
 """
 
 import logging

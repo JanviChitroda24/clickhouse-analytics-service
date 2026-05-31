@@ -1,0 +1,1 @@
+"""FastAPI data service package."""

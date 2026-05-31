@@ -1,5 +1,5 @@
 """
-ElasticSearch client wrapper (Hour 11).
+ElasticSearch client wrapper.
 
 Singleton connection — same pattern as clickhouse_client.py.
 Uses elasticsearch-py 8.x (pinned in requirements) for ES 8.12 server compatibility.
@@ -29,3 +29,11 @@ def get_es_client() -> Elasticsearch:
             max_retries=3,
         )
     return _client
+
+
+def close_es_client() -> None:
+    """Close the cached Elasticsearch client (called on FastAPI shutdown)."""
+    global _client
+    if _client is not None:
+        _client.close()
+        _client = None

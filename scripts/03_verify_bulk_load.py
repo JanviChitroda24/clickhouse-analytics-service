@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-03 — Verify bulk load: Delta row counts vs ClickHouse.
+Verify bulk load: Delta row counts vs ClickHouse.
 
 Run after: python -m src.bulk_loader
 

@@ -1,8 +1,8 @@
 """
-ElasticSearch search features ClickHouse cannot do (Hour 14).
+ElasticSearch search features ClickHouse cannot do.
 
 Four capabilities that justify the dual-engine architecture:
-  1. Autocomplete — completion suggester (FST on suggest field from Hour 12)
+  1. Autocomplete — completion suggester (FST on suggest field from index setup)
   2. Fuzzy matching — edit distance on analyzed text fields
   3. Full-text search — tokenized multi_match with relevance ranking
   4. More Like This — document similarity via term overlap
@@ -10,7 +10,7 @@ Four capabilities that justify the dual-engine architecture:
 Usage:
     python -m src.es_search_features
 
-Prerequisites: Hour 11 index, Hour 12 bulk load (85K docs with suggest field).
+Prerequisites: index, bulk load (85K docs with suggest field).
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ def test_autocomplete(client) -> None:
     """
     Completion suggester — type-ahead on every keystroke (<10ms target).
 
-    Uses Hour 12 `suggest` field with inputs: ticker, company_name, combined.
+    Uses `suggest` field with inputs: ticker, company_name, combined.
     ClickHouse: no FST — LIKE 'Goo%' is full scan, won't match company names.
     """
     logger.info("=" * 60)

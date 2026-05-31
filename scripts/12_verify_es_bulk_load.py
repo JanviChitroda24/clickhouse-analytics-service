@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-12 — Bulk load ClickHouse trades into ElasticSearch (Hour 12).
+Bulk load ClickHouse trades into ElasticSearch.
 
 Usage:
     python3 scripts/12_verify_es_bulk_load.py

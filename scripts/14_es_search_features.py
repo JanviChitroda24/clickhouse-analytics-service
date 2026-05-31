@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-14 — ES search features demo (Hour 14).
+ES search features demo.
 
 Usage:
     python3 scripts/14_es_search_features.py

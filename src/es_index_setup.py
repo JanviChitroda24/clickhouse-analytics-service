@@ -1,5 +1,5 @@
 """
-ElasticSearch index setup — creates stock-trades index with mappings (Hour 11).
+ElasticSearch index setup — creates stock-trades index with mappings.
 
 Mapping design:
   - keyword: exact match + aggregations (ticker, side, trade_type, sector)
@@ -25,7 +25,7 @@ from src.es_client import get_es_client
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 logger = logging.getLogger(__name__)
 
-# Index body — settings + mappings. Equivalent to Hour 2 ORDER BY decision in ClickHouse:
+# Index body — settings + mappings. Equivalent to ORDER BY decision in ClickHouse:
 # field types here determine what queries are possible and how fast they are.
 TRADE_INDEX_MAPPING = {
     "settings": {
@@ -181,7 +181,7 @@ def main() -> None:
 
     if ok:
         logger.info("")
-        logger.info("ES index ready — proceed to Hour 12 (bulk load)")
+        logger.info("ES index ready — proceed to (bulk load)")
     else:
         raise SystemExit(1)
 

@@ -1,13 +1,13 @@
 """
-8 analytics queries in ElasticSearch Query DSL (Hour 13).
+8 analytics queries in ElasticSearch Query DSL.
 
-Same business logic as Hour 9 ClickHouse queries — head-to-head benchmark on
+Same business logic as ClickHouse queries — head-to-head benchmark on
 identical 85,815 documents/rows. Proves which engine wins for aggregations vs filters.
 
 Usage:
     python -m src.es_analytics_queries
 
-Prerequisites: Hour 11 index, Hour 12 bulk load (85K docs in ES).
+Prerequisites: index, bulk load (85K docs in ES).
 """
 
 from __future__ import annotations
@@ -25,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 BENCHMARK_RUNS = 5
 
-# ClickHouse avg ms from Hour 9 run (85,815 rows) — update after re-running analytics_queries
+# ClickHouse avg ms from run (85,815 rows) — update after re-running analytics_queries
 CH_TIMINGS: dict[str, float] = {
     "top_movers": 49.0,          # warm; cold first-run was 164.8ms
     "vwap_deviation": 74.1,
@@ -199,7 +199,7 @@ QUERIES: dict[str, dict[str, Any]] = {
         "parse": _parse_vwap_deviation,
     },
 
-    # terms on denormalized sector field (no JOIN — embedded in Hour 12)
+    # terms on denormalized sector field (no JOIN — embedded in the API layer)
     "anomaly_by_sector": {
         "description": "Price stats by sector (extended_stats includes stddev)",
         "body": {

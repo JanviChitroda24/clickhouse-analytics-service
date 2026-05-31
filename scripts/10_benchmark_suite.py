@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-10 — Run comprehensive benchmark suite and generate optimization report (Hour 10).
+Run comprehensive benchmark suite and generate optimization report.
 
 Usage:
     python3 scripts/10_benchmark_suite.py

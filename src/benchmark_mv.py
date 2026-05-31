@@ -2,7 +2,7 @@
 Benchmark materialized view queries vs raw raw_trades aggregations.
 
 Proves MVs return equivalent results with lower latency.
-Numbers feed Hour 10 query optimization report and interview talking points.
+Numbers feed query optimization report and interview talking points.
 
 Usage:
     python -m src.benchmark_mv

@@ -1,5 +1,5 @@
 """
-8 production analytics queries for stock trading data (Hour 9).
+8 production analytics queries for stock trading data.
 
 Each query answers a real dashboard/analyst question and exercises a different
 part of the optimization stack (MVs, skip indexes, partition pruning, JOINs).
@@ -9,7 +9,7 @@ Runs each query 5 times, averages latency, flags any query >= 100ms target.
 Usage:
     python -m src.analytics_queries
 
-Prerequisites: Hours 2–8 (schema, bulk load, MVs, skip indexes).
+Prerequisites: (schema, bulk load, MVs, skip indexes).
 """
 
 import logging
@@ -143,7 +143,7 @@ QUERIES: dict[str, dict[str, str]] = {
         """,
     },
 
-    # Uses: toStartOfFiveMinutes() — becomes FastAPI parameterized endpoint in Hour 17
+    # Uses: toStartOfFiveMinutes() — becomes FastAPI parameterized endpoint in the API layer
     "rolling_vwap_aapl": {
         "description": "5-minute VWAP buckets for AAPL (fixed ticker)",
         "sql": """
@@ -236,7 +236,7 @@ def run_query(
 
 
 def run_parameterized_rolling_vwap(ticker: str = "NVDA", runs: int = BENCHMARK_RUNS) -> float | None:
-    """Demonstrate {ticker:String} parameterized query — pattern for FastAPI Hour 17."""
+    """Demonstrate {ticker:String} parameterized query — pattern for FastAPI endpoints."""
     info = {"description": f"5-min VWAP buckets for {ticker} (parameterized)", "sql": ROLLING_VWAP_PARAM_SQL}
     avg_ms, _, err = run_query(
         "rolling_vwap_param",

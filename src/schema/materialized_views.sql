@@ -1,5 +1,5 @@
 -- ============================================================
--- Materialized Views — Pre-Computed Analytics (Hour 6)
+-- Materialized Views — Pre-Computed Analytics 
 -- ============================================================
 -- MVs fire on every INSERT into raw_trades (including Kafka MV path).
 -- They do NOT retroactively process existing rows — run setup_materialized_views
@@ -78,7 +78,7 @@ GROUP BY ticker, hour;
 -- Sector Summary — manual refresh (MVs cannot JOIN)
 -- ────────────────────────────────────────────────────────────
 -- Populated via INSERT ... SELECT ... JOIN in setup_materialized_views.
--- Dagster periodic refresh planned for Hour 16.
+-- Dagster periodic refresh planned for the FastAPI layer.
 
 CREATE TABLE IF NOT EXISTS stock_analytics.sector_summary
 (

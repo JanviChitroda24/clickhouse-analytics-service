@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-07 — Verify skip indexes exist on raw_trades.
+Verify skip indexes exist on raw_trades.
 
 Run after: python -m src.setup_skip_indexes
 

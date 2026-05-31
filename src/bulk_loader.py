@@ -253,7 +253,7 @@ def main():
 
     logger.info("")
     if raw_count > 0 and meta_count > 0 and counts_match:
-        logger.info("Bulk load complete — ready for Hour 4 (Kafka engine)!")
+        logger.info("Bulk load complete — ready for (Kafka engine)!")
     elif raw_count > 0 and meta_count > 0:
         logger.warning("Loaded data but raw_trades count does not match Delta — investigate")
     else:

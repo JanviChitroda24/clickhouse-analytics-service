@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-05 — End-to-end pipeline verification (Hour 5).
+End-to-end pipeline verification.
 
 Run while or after Week 3 producer at 100 eps for 2 minutes.
 Generates docs/clickhouse_verification_report.md.
