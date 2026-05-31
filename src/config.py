@@ -23,6 +23,7 @@ class Settings(BaseSettings):
     # ElasticSearch (Day 3)
     es_host: str = "localhost"
     es_port: int = 9200
+    es_index_trades: str = "stock-trades"
 
     # Kafka / Redpanda
     kafka_bootstrap_servers: str = "localhost:9092"
