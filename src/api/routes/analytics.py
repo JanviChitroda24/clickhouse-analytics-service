@@ -53,6 +53,7 @@ async def get_vwap(
     User-supplied ticker uses {ticker:String} — not string concatenation.
     """
     ticker_upper = ticker.upper()
+    # TTL caching: reuse a recent VWAP response for identical request parameters.
     cache_key = f"vwap:{ticker_upper}:{granularity}:{limit}"
     if cache_key in vwap_cache:
         logger.info("VWAP %s (%s): CACHE HIT", ticker_upper, granularity)
@@ -279,6 +280,7 @@ async def browse_trades(
     combined with `ORDER BY trade_time`.
     """
     ticker_upper = ticker.upper()
+    # Cursor pagination: only fetch trades newer than the last trade_time we returned.
     after_sql = "AND trade_time > {after:DateTime64}" if after else ""
 
     start = time.perf_counter()
@@ -352,6 +354,7 @@ async def get_market_summary() -> MarketSummary:
     Avoids three separate HTTP round-trips for the main screen.
     """
     cache_key = "market_summary"
+    # TTL caching: market snapshot is expensive to compute, but changes slowly.
     if cache_key in market_summary_cache:
         logger.info("Market summary: CACHE HIT")
         return market_summary_cache[cache_key]

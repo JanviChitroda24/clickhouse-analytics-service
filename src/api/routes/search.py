@@ -92,6 +92,7 @@ async def autocomplete(
     partial company-name matches.
     """
     cache_key = f"autocomplete:{q}:{limit}"
+    # TTL caching: avoid re-running completion lookups during rapid typing.
     if cache_key in autocomplete_cache:
         logger.info("Autocomplete '%s': CACHE HIT", q)
         return autocomplete_cache[cache_key]
