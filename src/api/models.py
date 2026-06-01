@@ -82,6 +82,29 @@ class BuySellPressure(BaseModel):
  total: int
  buy_pct: float
 
+
+class TradeBrowseItem(BaseModel):
+    """Single trade document for cursor-based browsing."""
+
+    trade_id: str
+    ticker: str
+    price: float
+    quantity: int
+    trade_time: datetime
+    side: str
+    trade_type: str
+    source: str
+
+
+class TradeBrowseResponse(BaseModel):
+    """Cursor-based paginated trade browsing response."""
+
+    ticker: str
+    trades: list[TradeBrowseItem]
+    count: int
+    next_cursor: datetime | None = None
+    has_more: bool
+
 # ── Search (ElasticSearch-backed) ───────────────────────────────
 
 class AutocompleteResult(BaseModel):

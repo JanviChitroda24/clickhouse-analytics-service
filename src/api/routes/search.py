@@ -20,6 +20,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 
 from src.api.models import AutocompleteResult, SearchHit, SearchResponse, SimilarTicker
+from src.api.cache import autocomplete_cache, search_cache
 from src.config import get_settings
 from src.es_client import get_es_client
 
@@ -90,30 +91,38 @@ async def autocomplete(
     ClickHouse has no completion structure; LIKE 'Goo%' would full-scan and miss
     partial company-name matches.
     """
+    cache_key = f"autocomplete:{q}:{limit}"
+    if cache_key in autocomplete_cache:
+        logger.info("Autocomplete '%s': CACHE HIT", q)
+        return autocomplete_cache[cache_key]
+
     client = get_es_client()
     start = time.perf_counter()
-
-    result = _as_dict(
-        client.search(
-            index=_index_name(),
-            suggest={
-                "ticker-suggest": {
-                    "prefix": q,
-                    "completion": {
-                        "field": "suggest",
-                        "size": limit,
-                        "skip_duplicates": True,
-                    },
-                }
-            },
+    try:
+        result = _as_dict(
+            client.search(
+                index=_index_name(),
+                suggest={
+                    "ticker-suggest": {
+                        "prefix": q,
+                        "completion": {
+                            "field": "suggest",
+                            "size": limit,
+                            "skip_duplicates": True,
+                        },
+                    }
+                },
+            )
         )
-    )
-    elapsed = (time.perf_counter() - start) * 1000
+    except Exception as exc:
+        logger.error("Autocomplete failed for '%s': %s", q, exc)
+        raise HTTPException(status_code=503, detail=f"ElasticSearch unavailable: {exc}")
 
+    elapsed = (time.perf_counter() - start) * 1000
     suggestions = result["suggest"]["ticker-suggest"][0]["options"]
     logger.info("Autocomplete '%s': %d results, %.1fms", q, len(suggestions), elapsed)
 
-    return [
+    response = [
         AutocompleteResult(
             ticker=s["_source"]["ticker"],
             company_name=s["_source"].get("company_name", "Unknown"),
@@ -121,6 +130,8 @@ async def autocomplete(
         )
         for s in suggestions
     ]
+    autocomplete_cache[cache_key] = response
+    return response
 
 
 # ── 2. Full-Text Search ─────────────────────────────────────────
@@ -142,6 +153,11 @@ async def search_trades(
     constraints (term/range) that do not affect relevance — ES best practice.
     ClickHouse equivalent: LIKE '%financial%' — no tokenization, no ranking.
     """
+    cache_key = f"search:trades:{q}:{ticker}:{side}:{min_price}:{max_price}:{limit}"
+    if cache_key in search_cache:
+        logger.info("Search trades '%s': CACHE HIT", q)
+        return search_cache[cache_key]
+
     client = get_es_client()
     start = time.perf_counter()
 
@@ -172,14 +188,18 @@ async def search_trades(
     if filters:
         bool_query["filter"] = filters
 
-    result = _as_dict(
-        client.search(
-            index=_index_name(),
-            query={"bool": bool_query},
-            size=limit,
-            _source=_TRADE_SOURCE,
+    try:
+        result = _as_dict(
+            client.search(
+                index=_index_name(),
+                query={"bool": bool_query},
+                size=limit,
+                _source=_TRADE_SOURCE,
+            )
         )
-    )
+    except Exception as exc:
+        logger.error("Search trades failed for '%s': %s", q, exc)
+        raise HTTPException(status_code=503, detail=f"ElasticSearch unavailable: {exc}")
     elapsed = (time.perf_counter() - start) * 1000
 
     hits = result["hits"]["hits"]
@@ -187,12 +207,14 @@ async def search_trades(
 
     logger.info("Search '%s': %d total, %d returned, %.1fms", q, total, len(hits), elapsed)
 
-    return SearchResponse(
+    response = SearchResponse(
         query=q,
         total_hits=total,
         took_ms=round(elapsed, 1),
         results=_parse_trade_hits(hits),
     )
+    search_cache[cache_key] = response
+    return response
 
 
 # ── 3. Fuzzy Search ─────────────────────────────────────────────
@@ -210,50 +232,59 @@ async def fuzzy_search(
     input before edit-distance matching — fixes case-sensitivity issues on tickers.
     Results collapsed by ticker so one row per symbol, not one per trade.
     """
+    cache_key = f"search:fuzzy:{q}:{limit}"
+    if cache_key in search_cache:
+        logger.info("Search fuzzy '%s': CACHE HIT", q)
+        return search_cache[cache_key]
+
     client = get_es_client()
     start = time.perf_counter()
 
-    result = _as_dict(
-        client.search(
-            index=_index_name(),
-            query={
-                "bool": {
-                    "should": [
-                        {
-                            "match": {
-                                "ticker_text": {
-                                    "query": q,
-                                    "fuzziness": "AUTO",
-                                    "boost": 3,
+    try:
+        result = _as_dict(
+            client.search(
+                index=_index_name(),
+                query={
+                    "bool": {
+                        "should": [
+                            {
+                                "match": {
+                                    "ticker_text": {
+                                        "query": q,
+                                        "fuzziness": "AUTO",
+                                        "boost": 3,
+                                    }
                                 }
-                            }
-                        },
-                        {
-                            "match": {
-                                "company_name": {
-                                    "query": q,
-                                    "fuzziness": "AUTO",
-                                    "boost": 2,
+                            },
+                            {
+                                "match": {
+                                    "company_name": {
+                                        "query": q,
+                                        "fuzziness": "AUTO",
+                                        "boost": 2,
+                                    }
                                 }
-                            }
-                        },
-                        {
-                            "match": {
-                                "sector": {
-                                    "query": q,
-                                    "fuzziness": "AUTO",
+                            },
+                            {
+                                "match": {
+                                    "sector": {
+                                        "query": q,
+                                        "fuzziness": "AUTO",
+                                    }
                                 }
-                            }
-                        },
-                    ],
-                    "minimum_should_match": 1,
-                }
-            },
-            size=limit,
-            collapse={"field": "ticker"},
-            _source=_TRADE_SOURCE,
+                            },
+                        ],
+                        "minimum_should_match": 1,
+                    }
+                },
+                size=limit,
+                collapse={"field": "ticker"},
+                _source=_TRADE_SOURCE,
+            )
         )
-    )
+    except Exception as exc:
+        logger.error("Fuzzy search failed for '%s': %s", q, exc)
+        raise HTTPException(status_code=503, detail=f"ElasticSearch unavailable: {exc}")
     elapsed = (time.perf_counter() - start) * 1000
 
     hits = result["hits"]["hits"]
@@ -261,12 +292,14 @@ async def fuzzy_search(
 
     logger.info("Fuzzy '%s': %d total, %d returned, %.1fms", q, total, len(hits), elapsed)
 
-    return SearchResponse(
+    response = SearchResponse(
         query=q,
         total_hits=total,
         took_ms=round(elapsed, 1),
         results=_parse_trade_hits(hits),
     )
+    search_cache[cache_key] = response
+    return response
 
 
 # ── 4. Similar Tickers ──────────────────────────────────────────
@@ -284,41 +317,55 @@ async def find_similar(
     company_name. Collapsed by ticker for a sidebar "related tickers" widget.
     ClickHouse has no built-in document similarity.
     """
-    client = get_es_client()
     index = _index_name()
     ticker_upper = ticker.upper()
+
+    cache_key = f"search:similar:{ticker_upper}:{limit}"
+    if cache_key in search_cache:
+        logger.info("Similar '%s': CACHE HIT", ticker_upper)
+        return search_cache[cache_key]
+
+    client = get_es_client()
     start = time.perf_counter()
 
-    sample = _as_dict(
-        client.search(
-            index=index,
-            query={"term": {"ticker": ticker_upper}},
-            size=1,
+    try:
+        sample = _as_dict(
+            client.search(
+                index=index,
+                query={"term": {"ticker": ticker_upper}},
+                size=1,
+            )
         )
-    )
+    except Exception as exc:
+        logger.error("Similar seed lookup failed for '%s': %s", ticker_upper, exc)
+        raise HTTPException(status_code=503, detail=f"ElasticSearch unavailable: {exc}")
 
     if not sample["hits"]["hits"]:
         raise HTTPException(status_code=404, detail=f"Ticker '{ticker_upper}' not found")
 
     doc_id = sample["hits"]["hits"][0]["_id"]
 
-    result = _as_dict(
-        client.search(
-            index=index,
-            query={
-                "more_like_this": {
-                    "fields": ["sector", "company_name"],
-                    "like": [{"_index": index, "_id": doc_id}],
-                    "min_term_freq": 1,
-                    "min_doc_freq": 1,
-                    "max_query_terms": 10,
-                }
-            },
-            size=limit * 5,
-            collapse={"field": "ticker"},
-            _source=["ticker", "company_name", "sector"],
+    try:
+        result = _as_dict(
+            client.search(
+                index=index,
+                query={
+                    "more_like_this": {
+                        "fields": ["sector", "company_name"],
+                        "like": [{"_index": index, "_id": doc_id}],
+                        "min_term_freq": 1,
+                        "min_doc_freq": 1,
+                        "max_query_terms": 10,
+                    }
+                },
+                size=limit * 5,
+                collapse={"field": "ticker"},
+                _source=["ticker", "company_name", "sector"],
+            )
         )
-    )
+    except Exception as exc:
+        logger.error("Similar MLT query failed for '%s': %s", ticker_upper, exc)
+        raise HTTPException(status_code=503, detail=f"ElasticSearch unavailable: {exc}")
     elapsed = (time.perf_counter() - start) * 1000
 
     hits = result["hits"]["hits"]
@@ -335,4 +382,5 @@ async def find_similar(
 
     logger.info("Similar to %s: %d results, %.1fms", ticker_upper, len(similar), elapsed)
 
+    search_cache[cache_key] = similar
     return similar

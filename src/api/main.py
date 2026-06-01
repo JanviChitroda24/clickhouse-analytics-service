@@ -22,6 +22,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.api.models import EngineHealth, HealthResponse
+from src.api.middleware import RequestLoggingMiddleware
 from src.api.routes import analytics, search
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
@@ -94,6 +95,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Request logging middleware (method/path/status + elapsed time)
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(analytics.router)
 app.include_router(search.router)
