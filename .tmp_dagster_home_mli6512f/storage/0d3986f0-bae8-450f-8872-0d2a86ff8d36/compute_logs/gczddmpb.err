@@ -1,0 +1,24 @@
+[32m2026-06-01 17:03:55 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 0d3986f0-bae8-450f-8872-0d2a86ff8d36 - 36811 - LOGS_CAPTURED - Capturing logs for process (pid: 36811).
+[32m2026-06-01 17:03:55 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 0d3986f0-bae8-450f-8872-0d2a86ff8d36 - 36811 - run_quality_checks - STEP_START - Started execution of step "run_quality_checks".
+2026-06-01 17:03:55,494 | INFO | POST http://localhost:9200/stock-trades/_refresh [status:200 duration:0.011s]
+2026-06-01 17:03:55,521 | INFO | POST http://localhost:9200/stock-trades/_count [status:200 duration:0.027s]
+2026-06-01 17:03:55,625 | INFO | Connected to SQL Server at localhost:1433 (database=stock_analytics)
+2026-06-01 17:03:55,706 | INFO | GET http://localhost:9200/_cluster/health [status:200 duration:0.008s]
+2026-06-01 17:03:55,813 | INFO | POST http://localhost:9200/stock-trades/_search [status:200 duration:0.102s]
+2026-06-01 17:03:55,821 | INFO | GET http://localhost:9200/stock-trades/_mapping [status:200 duration:0.007s]
+2026-06-01 17:03:55,843 | INFO |   ✅ Cross-engine row count: CH=85,815, ES=85,815, SQL=85,815
+2026-06-01 17:03:55,843 | INFO |   ✅ ClickHouse MV consistency: MV VWAP=282.1514, Raw VWAP=282.1514, diff=0.000000
+2026-06-01 17:03:55,843 | INFO |   ✅ ES index health: Cluster status: green
+2026-06-01 17:03:55,843 | INFO |   ✅ Freshness check (CH vs ES): CH latest=2026-05-29 21:04:17, ES latest=2026-05-29 21:04:17, diff=0s
+2026-06-01 17:03:55,843 | INFO |   ✅ Schema drift detection: All 14 fields present with correct types
+2026-06-01 17:03:55,843 | INFO |   ✅ Null validation: No nulls in critical fields (price, quantity, ticker, trade_time)
+2026-06-01 17:03:55,843 | INFO |   ✅ Range validation: All prices in range $1–$2000 (actual: $44.13–$1080.00)
+2026-06-01 17:03:55,843 | INFO | 
+2026-06-01 17:03:55,844 | INFO | Report written: /Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/docs/data_quality_report.md
+2026-06-01 17:03:55,845 | INFO | 
+============================================================
+2026-06-01 17:03:55,845 | INFO | Results: 7/7 checks passed
+[32m2026-06-01 17:03:55 -0400[0m - dagster - [34mINFO[0m - __ASSET_JOB - 0d3986f0-bae8-450f-8872-0d2a86ff8d36 - run_quality_checks - All 7 quality checks passed
+[32m2026-06-01 17:03:55 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 0d3986f0-bae8-450f-8872-0d2a86ff8d36 - 36811 - run_quality_checks - STEP_OUTPUT - Yielded output "result" of type "Any". (Type check passed).
+[32m2026-06-01 17:03:55 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 0d3986f0-bae8-450f-8872-0d2a86ff8d36 - 36811 - run_quality_checks - ASSET_MATERIALIZATION - Materialized value run_quality_checks.
+[32m2026-06-01 17:03:55 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 0d3986f0-bae8-450f-8872-0d2a86ff8d36 - 36811 - run_quality_checks - STEP_SUCCESS - Finished execution of step "run_quality_checks" in 849ms.

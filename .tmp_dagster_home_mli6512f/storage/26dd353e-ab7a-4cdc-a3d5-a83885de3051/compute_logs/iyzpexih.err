@@ -1,0 +1,155 @@
+[32m2026-06-01 17:01:17 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 26dd353e-ab7a-4cdc-a3d5-a83885de3051 - 36377 - LOGS_CAPTURED - Capturing logs for process (pid: 36377).
+[32m2026-06-01 17:01:17 -0400[0m - dagster - [34mDEBUG[0m - __ASSET_JOB - 26dd353e-ab7a-4cdc-a3d5-a83885de3051 - 36377 - check_infrastructure - STEP_START - Started execution of step "check_infrastructure".
+Unexpected Http Driver Exception
+[32m2026-06-01 17:01:18 -0400[0m - dagster - [34mERROR[0m - [31m__ASSET_JOB - 26dd353e-ab7a-4cdc-a3d5-a83885de3051 - 36377 - check_infrastructure - STEP_FAILURE - Execution of step "check_infrastructure" failed.
+
+dagster._core.errors.DagsterExecutionStepExecutionError: Error occurred while executing op "check_infrastructure"::
+
+RuntimeError: ClickHouse unhealthy: Error HTTPConnectionPool(host='localhost', port=8123): Max retries exceeded with url: /?query_id=7b84427b-c68f-41c6-8f09-bd27154d0989 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8123): Failed to establish a new connection: [Errno 61] Connection refused")) executing HTTP request attempt 1 (http://localhost:8123)
+
+Stack Trace:
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/dagster/_core/execution/plan/utils.py", line 57, in op_execution_error_boundary
+    yield
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/dagster/_utils/__init__.py", line 394, in iterate_with_context
+    next_output = next(iterator)
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/dagster/_core/execution/plan/compute_generator.py", line 135, in _coerce_op_compute_fn_to_iterator
+    result = invoke_compute_fn(
+        fn, context, kwargs, context_arg_provided, config_arg_class, resource_arg_mapping
+    )
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/dagster/_core/execution/plan/compute_generator.py", line 115, in invoke_compute_fn
+    return fn(context, **args_to_pass) if context_arg_provided else fn(**args_to_pass)
+           ~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/dagster_pipeline/assets.py", line 43, in check_infrastructure
+    raise RuntimeError(f"ClickHouse unhealthy: {exc}") from exc
+
+The above exception was caused by the following exception:
+clickhouse_connect.driver.exceptions.OperationalError: Error HTTPConnectionPool(host='localhost', port=8123): Max retries exceeded with url: /?query_id=7b84427b-c68f-41c6-8f09-bd27154d0989 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8123): Failed to establish a new connection: [Errno 61] Connection refused")) executing HTTP request attempt 1 (http://localhost:8123)
+
+Stack Trace:
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/dagster_pipeline/assets.py", line 40, in check_infrastructure
+    version = execute_query("SELECT version()")[0][0]
+              ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/src/clickhouse_client.py", line 23, in execute_query
+    return get_ch_client().query(query, parameters=parameters).result_rows
+           ~~~~~~~~~~~~~^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/src/clickhouse_client.py", line 12, in get_ch_client
+    _client = clickhouse_connect.get_client(
+        host=s.clickhouse_host,
+    ...<3 lines>...
+        database=s.clickhouse_database,
+    )
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/__init__.py", line 181, in create_client
+    return HttpClient(interface, host, port, username, password, database, access_token, settings=settings, **kwargs)
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/httpclient.py", line 202, in __init__
+    super().__init__(
+    ~~~~~~~~~~~~~~~~^
+        database=database,
+        ^^^^^^^^^^^^^^^^^^
+    ...<7 lines>...
+        autoconnect=True,
+        ^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/client.py", line 192, in __init__
+    self._init_common_settings(resolved_tz_source)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/client.py", line 199, in _init_common_settings
+    self.server_version, server_tz = tuple(self.command("SELECT version(), timezone()", use_database=False))
+                                           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/httpclient.py", line 471, in command
+    response = self._raw_request(payload, params, headers, method, fields=fields, server_wait=False)
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/httpclient.py", line 599, in _raw_request
+    raise OperationalError(f"Error {ex} executing HTTP request attempt {attempts}{err_url}") from ex
+
+The above exception was caused by the following exception:
+urllib3.exceptions.MaxRetryError: HTTPConnectionPool(host='localhost', port=8123): Max retries exceeded with url: /?query_id=7b84427b-c68f-41c6-8f09-bd27154d0989 (Caused by NewConnectionError("HTTPConnection(host='localhost', port=8123): Failed to establish a new connection: [Errno 61] Connection refused"))
+
+Stack Trace:
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/clickhouse_connect/driver/httpclient.py", line 574, in _raw_request
+    response = self.http.request(method, url, **kwargs)
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/_request_methods.py", line 143, in request
+    return self.request_encode_body(
+           ~~~~~~~~~~~~~~~~~~~~~~~~^
+        method, url, fields=fields, headers=headers, **urlopen_kw
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/_request_methods.py", line 278, in request_encode_body
+    return self.urlopen(method, url, **extra_kw)
+           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/poolmanager.py", line 457, in urlopen
+    response = conn.urlopen(method, u.request_uri, **kw)
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py", line 872, in urlopen
+    return self.urlopen(
+           ~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<13 lines>...
+        **response_kw,
+        ^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py", line 842, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/util/retry.py", line 543, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The above exception was caused by the following exception:
+urllib3.exceptions.NewConnectionError: HTTPConnection(host='localhost', port=8123): Failed to establish a new connection: [Errno 61] Connection refused
+
+Stack Trace:
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py", line 788, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connectionpool.py", line 493, in _make_request
+    conn.request(
+    ~~~~~~~~~~~~^
+        method,
+        ^^^^^^^
+    ...<6 lines>...
+        enforce_content_length=enforce_content_length,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connection.py", line 500, in request
+    self.endheaders()
+    ~~~~~~~~~~~~~~~^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/client.py", line 1333, in endheaders
+    self._send_output(message_body, encode_chunked=encode_chunked)
+    ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/client.py", line 1093, in _send_output
+    self.send(msg)
+    ~~~~~~~~~^^^^^
+  File "/opt/homebrew/Cellar/python@3.13/3.13.2/Frameworks/Python.framework/Versions/3.13/lib/python3.13/http/client.py", line 1037, in send
+    self.connect()
+    ~~~~~~~~~~~~^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connection.py", line 331, in connect
+    self.sock = self._new_conn()
+                ~~~~~~~~~~~~~~^^
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connection.py", line 219, in _new_conn
+    raise NewConnectionError(
+        self, f"Failed to establish a new connection: {e}"
+    ) from e
+
+The above exception was caused by the following exception:
+ConnectionRefusedError: [Errno 61] Connection refused
+
+Stack Trace:
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/connection.py", line 204, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/util/connection.py", line 85, in create_connection
+    raise err
+  File "/Users/janvichitroda/Documents/Janvi/NEU/Kaizen/Data_Engineering_Portfolio/clickhouse-analytics-service/.venv/lib/python3.13/site-packages/urllib3/util/connection.py", line 73, in create_connection
+    sock.connect(sa)
+    ~~~~~~~~~~~~^^^^
+[0m

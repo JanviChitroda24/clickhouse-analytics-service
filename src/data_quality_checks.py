@@ -315,36 +315,56 @@ def generate_report(results: list[tuple[str, bool, str]]) -> None:
     logger.info("Report written: %s", _REPORT_PATH)
 
 
-def main() -> None:
-    logger.info("=" * 60)
-    logger.info("Data Quality Checks — Cross-Engine Consistency")
-    logger.info("=" * 60)
+class DataQualityFailure(Exception):
+    """Raised when one or more checks fail (CLI exit 1, Dagster blocks downstream)."""
 
+
+def collect_check_results() -> list[tuple[str, bool, str]]:
+    """Run every check and return (name, passed, message) tuples."""
     results: list[tuple[str, bool, str]] = []
-    any_failed = False
-
     for name, check_fn in ALL_CHECKS:
         try:
             passed, msg = check_fn()
         except Exception as exc:
             passed, msg = False, f"ERROR: {exc}"
+        results.append((name, passed, msg))
+    return results
 
+
+def execute_all_checks() -> list[tuple[str, bool, str]]:
+    """
+    Run all checks, write the markdown report, and raise if any check failed.
+
+    Dagster and other orchestrators call this instead of duplicating check logic.
+    """
+    results = collect_check_results()
+    for name, passed, msg in results:
         icon = "✅" if passed else "❌"
         logger.info("  %s %s: %s", icon, name, msg)
-
-        results.append((name, passed, msg))
-        if not passed:
-            any_failed = True
 
     logger.info("")
     generate_report(results)
 
-    passed_count = sum(1 for _, passed, _ in results if passed)
+    failed = [name for name, passed, _ in results if not passed]
+    if failed:
+        details = {name: msg for name, passed, msg in results if not passed}
+        raise DataQualityFailure(f"{len(failed)} check(s) failed: {details}")
+
+    passed_count = len(results)
     logger.info("\n%s", "=" * 60)
     logger.info("Results: %d/%d checks passed", passed_count, len(results))
+    return results
 
-    if any_failed:
-        logger.error("Some checks failed — investigate before proceeding")
+
+def main() -> None:
+    logger.info("=" * 60)
+    logger.info("Data Quality Checks — Cross-Engine Consistency")
+    logger.info("=" * 60)
+
+    try:
+        execute_all_checks()
+    except DataQualityFailure as exc:
+        logger.error("Some checks failed — investigate before proceeding: %s", exc)
         sys.exit(1)
 
     logger.info("All checks passed — data quality verified")
