@@ -20,10 +20,17 @@ class Settings(BaseSettings):
     clickhouse_password: str = ""
     clickhouse_database: str = "stock_analytics"
 
-    # ElasticSearch (Day 3)
+    # ElasticSearch
     es_host: str = "localhost"
     es_port: int = 9200
     es_index_trades: str = "stock-trades"
+
+    # SQL Server (row-store benchmark — Azure SQL Edge on ARM Mac)
+    sqlserver_host: str = "localhost"
+    sqlserver_port: int = 1433
+    sqlserver_user: str = "sa"
+    sqlserver_password: str = "StrongP@ss123!"
+    sqlserver_database: str = "stock_analytics"
 
     # Kafka / Redpanda
     kafka_bootstrap_servers: str = "localhost:9092"
