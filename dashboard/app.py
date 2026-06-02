@@ -270,6 +270,9 @@ def page_engine_toggle() -> None:
 def main() -> None:
     _sidebar()
 
+    st.title("📊 Stock Analytics Data Service")
+    st.markdown("**Built by Janvi Chitroda** · ClickHouse (OLAP) + ElasticSearch (Search) · FastAPI · Dagster")
+
     pages = {
         "Overview": page_overview,
         "Ticker search": page_ticker_search,
@@ -281,6 +284,15 @@ def main() -> None:
 
     choice = st.sidebar.radio("View", list(pages.keys()))
     pages[choice]()
+
+    # ── Footer ───────────────────────────────────────────────────────
+
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        st.caption("**Janvi Chitroda** — Stock Analytics Data Service")
+    with col2:
+        st.caption("ClickHouse + ElasticSearch + SQL Server | FastAPI | Dagster")
 
 
 if __name__ == "__main__":
