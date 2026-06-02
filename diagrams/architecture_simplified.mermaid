@@ -1,0 +1,50 @@
+---
+title: Stock Analytics Data Service — Built by Janvi Chitroda
+---
+graph TB
+    subgraph Sources["Data sources"]
+        FINNHUB["Finnhub WebSocket<br/>Live market trades"]
+        SIM["Trade simulator<br/>Synthetic events"]
+    end
+
+    subgraph Broker["Message broker"]
+        KAFKA["Kafka / Redpanda<br/>Topic: stock_trades<br/>Fan-out to multiple consumers"]
+    end
+
+    subgraph Engines["Query engines"]
+        CH["ClickHouse — Columnar OLAP<br/>ReplacingMergeTree · MVs · Skip indexes<br/>TTL · Dictionaries · Projections<br/>VWAP: 18ms"]
+        ES["ElasticSearch — Inverted index<br/>Autocomplete · Fuzzy matching<br/>Full-text search · More Like This<br/>Autocomplete: 10ms"]
+        SQL["SQL Server — Row-store OLTP<br/>B-tree indexes · ACID transactions<br/>Benchmark baseline<br/>VWAP: 278ms"]
+    end
+
+    subgraph Service["FastAPI data service"]
+        ANALYTICS["/api/v1/analytics<br/>ClickHouse-backed<br/>VWAP · Top movers · Sectors · Anomalies"]
+        SEARCH["/api/v1/search<br/>ElasticSearch-backed<br/>Autocomplete · Fuzzy · Full-text · Similar"]
+        PATTERNS["Production patterns<br/>TTL cache · Cursor pagination<br/>Graceful degradation · Request logging"]
+    end
+
+    subgraph Quality["Quality + orchestration"]
+        DQ["Data quality — 7 checks<br/>Row counts · MV consistency · Schema drift"]
+        DAGSTER["Dagster pipeline — 6 assets<br/>Daily 5PM Mon-Fri schedule"]
+        RECOVERY["Recovery tests — 3/3 passing<br/>CH crash · ES crash · Kafka pause"]
+    end
+
+    subgraph Frontend["Dashboard"]
+        DASH["Streamlit dashboard<br/>VWAP charts · Ticker search<br/>Sector comparison · Engine toggle"]
+    end
+
+    FINNHUB --> KAFKA
+    SIM --> KAFKA
+    KAFKA -->|"Native Kafka engine"| CH
+    KAFKA -->|"Python consumer<br/>Batched bulk indexing"| ES
+    CH -->|"Bulk load"| SQL
+    CH -->|"OLAP queries"| ANALYTICS
+    ES -->|"Search queries"| SEARCH
+    ANALYTICS --> DASH
+    SEARCH --> DASH
+    PATTERNS -.-> ANALYTICS
+    PATTERNS -.-> SEARCH
+    DQ -.->|"Validates"| CH
+    DQ -.->|"Validates"| ES
+    DQ -.->|"Validates"| SQL
+    DAGSTER -.->|"Orchestrates"| DQ

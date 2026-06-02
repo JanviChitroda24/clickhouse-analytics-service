@@ -1,0 +1,123 @@
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#1a1a2e', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#e94560', 'lineColor': '#e94560', 'secondaryColor': '#16213e', 'tertiaryColor': '#0f3460', 'fontSize': '14px', 'fontFamily': 'Segoe UI' }}}%%
+
+graph TB
+    subgraph DATA_SOURCES["📡 Data Sources"]
+        FINNHUB["🔴 Finnhub WebSocket<br/><i>Live market trades</i>"]
+        SIM["🟡 Trade Simulator<br/><i>Synthetic events</i>"]
+    end
+
+    subgraph INGESTION["⚡ Message Broker"]
+        KAFKA["<b>Kafka / Redpanda</b><br/>Topic: stock_trades<br/><i>Fan-out to multiple consumers</i>"]
+    end
+
+    subgraph QUERY_ENGINES["🔧 Query Engines"]
+        direction LR
+        subgraph CH_ENGINE["ClickHouse — Columnar OLAP"]
+            CH_KAFKA["Kafka Engine<br/><i>Native consumer</i>"]
+            CH_RAW["raw_trades<br/><i>ReplacingMergeTree</i><br/>ORDER BY (ticker, trade_time)"]
+            CH_MV["Materialized Views<br/><i>AggregatingMergeTree</i><br/>• mv_realtime_vwap<br/>• mv_daily_summary<br/>• mv_hourly_stats"]
+            CH_IDX["Skip Indexes<br/>• SET (ticker)<br/>• MINMAX (price)<br/>• BLOOM_FILTER (trade_type)"]
+            CH_ADV["Advanced Features<br/>• TTL 90-day lifecycle<br/>• Dictionaries (dictGet)<br/>• Projections (dual sort)"]
+        end
+
+        subgraph ES_ENGINE["ElasticSearch — Inverted Index"]
+            ES_CONSUMER["Python Consumer<br/><i>Batched bulk indexing</i><br/>Group: es_consumer"]
+            ES_INDEX["stock-trades index<br/><i>14 fields denormalized</i><br/>• keyword + text fields<br/>• completion (FST)<br/>• sector embedded"]
+            ES_FEATURES["Search Features<br/>• Autocomplete (10ms)<br/>• Fuzzy matching<br/>• Full-text + relevance<br/>• More Like This"]
+        end
+
+        subgraph SQL_ENGINE["SQL Server — Row-Store OLTP"]
+            SQL_TABLE["raw_trades<br/><i>B-tree indexes</i><br/>• idx_ticker<br/>• idx_trade_time<br/>• idx_ticker_time"]
+            SQL_USE["Benchmark baseline<br/><i>Proving columnar advantage</i><br/>VWAP: 278ms vs CH 20ms"]
+        end
+    end
+
+    subgraph SERVICE_LAYER["🌐 FastAPI Data Service"]
+        API["<b>FastAPI</b><br/>Port 8000 — Swagger at /docs"]
+        
+        subgraph ANALYTICS_ROUTES["/api/v1/analytics — ClickHouse"]
+            R_VWAP["GET /vwap/AAPL"]
+            R_MOVERS["GET /top-movers"]
+            R_SECTORS["GET /sectors/performance"]
+            R_ANOMALIES["GET /anomalies"]
+            R_SUMMARY["GET /market/summary"]
+            R_TRADES["GET /trades — cursor pagination"]
+        end
+        
+        subgraph SEARCH_ROUTES["/api/v1/search — ElasticSearch"]
+            R_AUTO["GET /autocomplete"]
+            R_SEARCH["GET /trades — full-text"]
+            R_FUZZY["GET /fuzzy"]
+            R_SIMILAR["GET /similar/AAPL"]
+        end
+
+        subgraph PATTERNS["Production Patterns"]
+            CACHE["TTL Cache<br/>60s summary, 10s VWAP"]
+            DEGRADE["Graceful Degradation<br/>ES down → analytics 200, search 503"]
+            LOGGING["Request Logging<br/>Method, path, status, timing"]
+        end
+    end
+
+    subgraph QUALITY["✅ Data Quality + Orchestration"]
+        DQ["7 Quality Checks<br/>• Cross-engine row count<br/>• MV consistency<br/>• Schema drift<br/>• Null + range validation"]
+        DAGSTER["Dagster Pipeline<br/>6 assets → dependency chain<br/>Daily 5PM Mon-Fri"]
+        RECOVERY["Recovery Tests<br/>• CH crash → zero data loss<br/>• ES crash → graceful degrade<br/>• Kafka pause → auto-resume"]
+    end
+
+    subgraph FRONTEND["📊 Streamlit Dashboard"]
+        DASH["Dashboard — Port 8501<br/>• VWAP chart<br/>• Top movers<br/>• Sector comparison<br/>• Anomaly alerts<br/>• Engine toggle"]
+    end
+
+    %% Data flow
+    FINNHUB --> KAFKA
+    SIM --> KAFKA
+    KAFKA -->|"Native Kafka Engine<br/>clickhouse_consumer group"| CH_KAFKA
+    KAFKA -->|"Python consumer<br/>es_consumer group"| ES_CONSUMER
+    
+    CH_KAFKA --> CH_RAW
+    CH_RAW --> CH_MV
+    CH_RAW --> CH_IDX
+    CH_RAW --> CH_ADV
+    
+    ES_CONSUMER --> ES_INDEX
+    ES_INDEX --> ES_FEATURES
+    
+    CH_RAW -->|"Bulk load"| SQL_TABLE
+    SQL_TABLE --> SQL_USE
+
+    %% Service connections
+    CH_MV -->|"OLAP queries"| ANALYTICS_ROUTES
+    ES_FEATURES -->|"Search queries"| SEARCH_ROUTES
+    
+    ANALYTICS_ROUTES --> API
+    SEARCH_ROUTES --> API
+    PATTERNS --> API
+    
+    %% Quality
+    CH_RAW --> DQ
+    ES_INDEX --> DQ
+    SQL_TABLE --> DQ
+    DQ --> DAGSTER
+    RECOVERY --> DQ
+    
+    %% Frontend
+    API -->|"HTTP JSON"| DASH
+
+    %% Styling
+    classDef source fill:#e94560,stroke:#e94560,color:#fff
+    classDef kafka fill:#ff9f1c,stroke:#ff9f1c,color:#000
+    classDef clickhouse fill:#f7dc6f,stroke:#f7dc6f,color:#000
+    classDef elastic fill:#00b4d8,stroke:#00b4d8,color:#000
+    classDef sqlserver fill:#a8dadc,stroke:#a8dadc,color:#000
+    classDef api fill:#6c5ce7,stroke:#6c5ce7,color:#fff
+    classDef quality fill:#00b894,stroke:#00b894,color:#fff
+    classDef dashboard fill:#fd79a8,stroke:#fd79a8,color:#fff
+
+    class FINNHUB,SIM source
+    class KAFKA kafka
+    class CH_KAFKA,CH_RAW,CH_MV,CH_IDX,CH_ADV clickhouse
+    class ES_CONSUMER,ES_INDEX,ES_FEATURES elastic
+    class SQL_TABLE,SQL_USE sqlserver
+    class API,R_VWAP,R_MOVERS,R_SECTORS,R_ANOMALIES,R_SUMMARY,R_TRADES,R_AUTO,R_SEARCH,R_FUZZY,R_SIMILAR,CACHE,DEGRADE,LOGGING api
+    class DQ,DAGSTER,RECOVERY quality
+    class DASH dashboard

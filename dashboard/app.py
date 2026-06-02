@@ -17,7 +17,10 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import time
+
 import pandas as pd
+import requests
 import streamlit as st
 
 # Allow imports when launched from repo root
@@ -206,65 +209,54 @@ def page_anomalies() -> None:
 
 
 def page_engine_toggle() -> None:
-    st.header("Engine toggle")
-    st.caption(
-        "Same ticker, two engines: ClickHouse structured browse vs ElasticSearch search. "
-        "Demonstrates routing and client-side latency — not identical SQL."
-    )
+    st.subheader("Engine toggle")
+    st.caption("Same ticker, two engines — ClickHouse vs ElasticSearch")
 
-    ticker = st.selectbox("Ticker", TICKERS, index=0)
-    limit = st.slider("Rows to fetch", 5, 50, 20)
+    col1, col2, col3 = st.columns([2, 2, 1])
+    with col1:
+        toggle_ticker = st.selectbox("Ticker", TICKERS, key="toggle_ticker")
+    with col2:
+        toggle_limit = st.slider("Rows", 5, 50, 20, key="toggle_limit")
+    with col3:
+        st.write("")
+        run = st.button("Run comparison", type="primary")
 
-    if st.button("Run comparison", type="primary"):
+    api_base = st.session_state.get("api_base", DEFAULT_API_BASE)
+
+    if run:
         col_ch, col_es = st.columns(2)
 
         with col_ch:
-            st.subheader("ClickHouse path")
-            st.code("GET /api/v1/analytics/trades?ticker=…")
-            ch_resp = _api().browse_trades_ch(ticker, limit=limit)
-            if ch_resp.error:
-                st.error(ch_resp.error)
-            else:
-                st.metric("Latency", f"{ch_resp.latency_ms:.0f} ms")
-                trades = (ch_resp.data or {}).get("trades") or []
-                st.write(f"**{len(trades)}** trades returned")
-                if trades:
-                    st.dataframe(pd.DataFrame(trades), use_container_width=True, hide_index=True)
+            st.markdown("**ClickHouse path**")
+            start = time.time()
+            try:
+                r = requests.get(f"{api_base}/api/v1/analytics/trades",
+                    params={"ticker": toggle_ticker, "limit": toggle_limit}, timeout=10)
+                ch_ms = (time.time() - start) * 1000
+                if r.status_code == 200:
+                    data = r.json()
+                    st.metric("Latency", f"{ch_ms:.0f} ms")
+                    st.caption(f"{data.get('count', len(data.get('trades', [])))} trades returned")
+                    st.dataframe(pd.DataFrame(data.get("trades", data if isinstance(data, list) else [])).head(5),
+                                use_container_width=True, hide_index=True)
+            except Exception as e:
+                st.error(str(e))
 
         with col_es:
-            st.subheader("ElasticSearch path")
-            st.code("GET /api/v1/search/trades?q=…&ticker=…")
-            es_resp = _api().search_trades_es(ticker, limit=limit)
-            if es_resp.error:
-                st.error(es_resp.error)
-            else:
-                st.metric("Latency", f"{es_resp.latency_ms:.0f} ms")
-                payload = es_resp.data or {}
-                results = payload.get("results") or []
-                st.write(f"**{payload.get('total_hits', 0)}** total hits · **{len(results)}** shown")
-                if results:
-                    st.dataframe(pd.DataFrame(results), use_container_width=True, hide_index=True)
-
-        if not ch_resp.error and not es_resp.error:
-            faster = "ClickHouse" if ch_resp.latency_ms <= es_resp.latency_ms else "ElasticSearch"
-            st.info(
-                f"Faster for this pattern: **{faster}** "
-                f"({min(ch_resp.latency_ms, es_resp.latency_ms):.0f} ms vs "
-                f"{max(ch_resp.latency_ms, es_resp.latency_ms):.0f} ms). "
-                "OLAP vs search — different strengths."
-            )
-
-    st.divider()
-    st.subheader("VWAP (ClickHouse only)")
-    st.caption("ElasticSearch has no native VWAP endpoint — analytics stay on ClickHouse.")
-    if st.button("Fetch VWAP on ClickHouse"):
-        vwap_resp = _api().vwap(ticker, limit=30)
-        if vwap_resp.error:
-            st.error(vwap_resp.error)
-        else:
-            st.metric("CH VWAP latency", f"{vwap_resp.latency_ms:.0f} ms")
-            points = (vwap_resp.data or {}).get("data") or []
-            st.write(f"{len(points)} buckets")
+            st.markdown("**ElasticSearch path**")
+            start = time.time()
+            try:
+                r = requests.get(f"{api_base}/api/v1/search/trades",
+                    params={"q": toggle_ticker, "ticker": toggle_ticker, "limit": toggle_limit}, timeout=10)
+                es_ms = (time.time() - start) * 1000
+                if r.status_code == 200:
+                    data = r.json()
+                    st.metric("Latency", f"{es_ms:.0f} ms")
+                    st.caption(f"{data.get('total_hits', 0)} total hits · {len(data.get('results', []))} shown")
+                    st.dataframe(pd.DataFrame(data.get("results", [])).head(5),
+                                use_container_width=True, hide_index=True)
+            except Exception as e:
+                st.error(str(e))
 
 
 def main() -> None:
