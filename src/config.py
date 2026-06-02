@@ -43,13 +43,13 @@ class Settings(BaseSettings):
         "../data-engineering-portfolio/01-snowflake-incremental-pipeline/data/company_metadata.csv"
     )
 
-    # 25 tickers from Week 3
+    # 25 tickers used across ingestion, API, and dashboard demos.
     tickers: list[str] = [
-        "AAPL", "MSFT", "GOOGL", "AMZN", "NVDA",
-        "META", "TSLA", "BRK.B", "UNH", "JNJ",
-        "V", "XOM", "JPM", "PG", "MA",
-        "HD", "CVX", "MRK", "ABBV", "LLY",
-        "PEP", "KO", "AVGO", "COST", "WMT",
+        "NVDA", "AAPL", "MSFT", "GOOG", "AMZN", "META", "TSLA",
+        "JPM", "GS", "MS", "BAC", "BRK-B", "AXP",
+        "UNH", "ALL", "PGR", "TRV",
+        "SNOW", "CRM", "UBER", "NFLX",
+        "V", "MA", "PYPL", "XYZ",
     ]
 
     model_config = SettingsConfigDict(

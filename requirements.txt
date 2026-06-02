@@ -16,3 +16,4 @@ pyarrow>=14.0.0
 pymssql>=2.2.0
 python-dotenv>=1.0.0
 confluent-kafka>=2.3.0
+streamlit>=1.28.0
