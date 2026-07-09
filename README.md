@@ -1,8 +1,8 @@
-# Real-Time Analytics Data Service — ClickHouse + ElasticSearch
+# Real-Time Analytics Data Service: ClickHouse + ElasticSearch
 
 A dual-engine analytics platform that routes stock trade queries to the right engine: **ClickHouse** for OLAP analytics, **ElasticSearch** for search. Fed by Kafka in real-time, served via FastAPI, orchestrated with Dagster.
 
-Built as an extension of [kafka-spark-streaming-pipeline](https://github.com/JanviChitroda24/kafka-spark-streaming-pipeline) — same data, same Kafka topic, three query engines.
+Built as an extension of [kafka-spark-streaming-pipeline](https://github.com/JanviChitroda24/kafka-spark-streaming-pipeline). Same data, same Kafka topic, three query engines.
 
 ## Architecture
 
@@ -50,7 +50,7 @@ ClickHouse   ES Consumer   SQL Server
 | Orchestration | **Dagster** | 6-asset pipeline with quality gates and daily schedule |
 | Dashboard | **Streamlit** | VWAP charts, autocomplete search, engine toggle |
 
-## ClickHouse Optimization — Four Layers
+## ClickHouse Optimization: Four Layers
 
 ```
 Layer 1: Materialized Views     → Pre-computed VWAP, daily/hourly summaries (5x speedup)
@@ -61,12 +61,12 @@ Layer 4: ORDER BY Primary Index → Sparse index binary search on ticker-first s
 
 **Advanced features:** TTL (90-day data lifecycle), Dictionaries (3.5x faster than JOINs), Projections (dual sort orders).
 
-## ElasticSearch — Four Features ClickHouse Can't Do
+## ElasticSearch: Four Features ClickHouse Can't Do
 
-1. **Autocomplete** — Completion field + FST, prefix lookup in microseconds
-2. **Fuzzy matching** — Edit distance on inverted index terms ("Micorsoft" → Microsoft)
-3. **Full-text search** — Tokenized, relevance-ranked, multi-field
-4. **More Like This** — Document similarity (AAPL → MSFT, NVDA as Technology peers)
+1. **Autocomplete**: Completion field + FST, prefix lookup in microseconds
+2. **Fuzzy matching**: Edit distance on inverted index terms ("Micorsoft" → Microsoft)
+3. **Full-text search**: Tokenized, relevance-ranked, multi-field
+4. **More Like This**: Document similarity (AAPL → MSFT, NVDA as Technology peers)
 
 ## API Endpoints
 
@@ -89,10 +89,10 @@ Layer 4: ORDER BY Primary Index → Sparse index binary search on ticker-first s
 | `GET /api/v1/search/similar/{ticker}` | Find related tickers (MLT) |
 
 ### Production Patterns
-- **TTL caching** — Market summary 60s, VWAP 10s, search 30s
-- **Cursor-based pagination** — O(1) per page vs OFFSET's O(n)
-- **Graceful degradation** — Analytics works when ES is down, search works when CH is down
-- **Request logging middleware** — Every request logged with timing
+- **TTL caching**: Market summary 60s, VWAP 10s, search 30s
+- **Cursor-based pagination**: O(1) per page vs OFFSET's O(n)
+- **Graceful degradation**: Analytics works when ES is down, search works when CH is down
+- **Request logging middleware**: Every request logged with timing
 
 ## Quick Start
 
@@ -148,7 +148,7 @@ dagster dev -m dagster_pipeline   # UI at localhost:3000
 | ES crash | Search 503, analytics unaffected | Auto-reconnect after restart |
 | Kafka pause | All ingestion pauses | Auto-resume after unpause |
 
-Tested with `python -m src.recovery_test` — 3/3 passing.
+Tested with `python -m src.recovery_test`: 3/3 passing.
 
 ## Documentation
 
@@ -167,15 +167,15 @@ Tested with `python -m src.recovery_test` — 3/3 passing.
 
 | Decision | Why |
 |----------|-----|
-| ClickHouse for OLAP | Columnar reads only needed columns — 3-10x faster than row-store for aggregations |
-| ElasticSearch for search | Inverted index + FST for autocomplete, fuzzy, full-text — impossible in ClickHouse |
+| ClickHouse for OLAP | Columnar reads only needed columns, 3-10x faster than row-store for aggregations |
+| ElasticSearch for search | Inverted index + FST for autocomplete, fuzzy, full-text. Impossible in ClickHouse |
 | SQL Server for benchmark | Row-store baseline proving the columnar advantage with real numbers |
-| ReplacingMergeTree | Kafka at-least-once delivery produces duplicates — eventual dedup on merge |
+| ReplacingMergeTree | Kafka at-least-once delivery produces duplicates. Eventual dedup on merge |
 | ORDER BY (ticker, trade_time) | Ticker-first because most queries filter by ticker |
-| PARTITION BY toYYYYMM | Monthly partitions — coarse enough to avoid overhead, fine enough to skip data |
-| Denormalized ES documents | ES has no JOINs — sector/company embedded in each trade document |
+| PARTITION BY toYYYYMM | Monthly partitions: coarse enough to avoid overhead, fine enough to skip data |
+| Denormalized ES documents | ES has no JOINs. Sector/company embedded in each trade document |
 | FastAPI dual routing | Analytics → ClickHouse, search → ES. Consumers don't know which engine handles their request. |
-| Cursor pagination | OFFSET is O(page_number). Cursor is O(1) — page 500 is as fast as page 1. |
+| Cursor pagination | OFFSET is O(page_number). Cursor is O(1), so page 500 is as fast as page 1. |
 
 ## Connection to Week 3
 
@@ -184,3 +184,6 @@ This project extends the [Kafka-Spark Streaming Pipeline](https://github.com/Jan
 - **Same producer** generates trade events for both pipelines
 - **Delta Lake output** from Week 3 is bulk-loaded into ClickHouse as historical data
 - **Company metadata** from Week 1 enriches trade data in both systems
+
+## License
+All rights reserved. See [LICENSE](LICENSE) for usage terms.
