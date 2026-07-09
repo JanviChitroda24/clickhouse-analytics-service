@@ -55,7 +55,7 @@ services:
     container_name: sqlserver
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "StrongP@ss123!"
+      MSSQL_SA_PASSWORD: "${SQLSERVER_PASSWORD}"
     ports:
       - "1433:1433"
     volumes:
