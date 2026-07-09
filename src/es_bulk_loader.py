@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Bulk load trades from ClickHouse into ElasticSearch.
 

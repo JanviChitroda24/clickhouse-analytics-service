@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Cross-engine data quality checks for ClickHouse, ElasticSearch, and SQL Server.
 

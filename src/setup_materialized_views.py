@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Create materialized views and backfill from existing raw_trades data.
 

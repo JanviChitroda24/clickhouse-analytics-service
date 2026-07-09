@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Stock Analytics Data Service — FastAPI application shell.
 

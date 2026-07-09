@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Create skip indexes on raw_trades and materialize them on existing data.
 

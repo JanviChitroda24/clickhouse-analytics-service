@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 ClickHouse schema setup — executes CREATE TABLE statements.
 

@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Kafka consumer that indexes trades into ElasticSearch in real-time.
 

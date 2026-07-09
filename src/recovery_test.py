@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Recovery and fault tolerance tests for the multi-engine analytics stack.
 

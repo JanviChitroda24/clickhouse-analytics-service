@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Bulk load Week 3 Delta Lake output into ClickHouse.
 

@@ -1,3 +1,4 @@
+# Author: Janvi Chitroda | github.com/JanviChitroda24
 """
 Dagster assets for the Stock Analytics Data Service.
 
